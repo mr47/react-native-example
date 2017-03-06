@@ -37,7 +37,7 @@ export default class Service extends Component{
                                         </Text>
                                     </View>
                                     <Separator />
-                                </View> : ''
+                                </View> : <Text />
                         }
                         {
                             displayOptions.showDuration?
@@ -49,7 +49,7 @@ export default class Service extends Component{
                                         </Text>
                                     </View>
                                     <Separator />
-                                </View> : ''
+                                </View> : <Text />
                         }
                     </View>
                 </View>
