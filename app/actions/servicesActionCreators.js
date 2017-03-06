@@ -44,7 +44,7 @@ export const loadServices = () => {
             if (!getState().loaded){
                 console.log(json);
                 dispatch(setLoaderState(true));
-                dispatch(setupServices(isArray?json.services.items: []))
+                dispatch(setupServices(json.services.items && isArray(json.services.items)?json.services.items: []))
             }
         })
     }
