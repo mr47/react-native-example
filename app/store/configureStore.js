@@ -6,6 +6,7 @@ import { rootReducer } from './../reducers/'
 
 // middleware
 import thunk from 'redux-thunk'
+import AsyncStore from './asyncStore';
 
 // base
 import React, { Component } from 'react';
@@ -24,5 +25,10 @@ export const store = compose(
         applyMiddleware(...middleware)
     )
 )(createStore)(rootReducer);
+
+store.subscribe(() => {
+    console.log('saved', store.getState());
+    AsyncStore.setItem('state', JSON.stringify(store.getState()));
+});
 
 export default store;

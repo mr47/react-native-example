@@ -3,55 +3,127 @@
  */
 
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Image, TouchableHighlight } from 'react-native'
+import { View, Text, StyleSheet, Image, TextInput, Switch, ScrollView, Button } from 'react-native'
 import Separator from './../components/separator';
+import throttle from 'lodash/throttle';
 
-export default class Service extends Component{
-    render(){
-        let { name, image, description, price, duration, displayOptions} = this.props;
+export default class ServiceAdd extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            name: '',
+            price: 0.0,
+            description: '',
+            duration: 0,
+            image: {
+                uri: 'https://scontent.cdninstagram.com/t51.2885-15/e35/17076405_1171733942949297_6259398458591936512_n.jpg'
+            },
+            displayOptions: {
+                showPrice: true,
+                showDuration: false,
+                valt: '$',
+                durationLabel: 'h'
+            }
+        };
+        // can be merged or use it in different way
+        this.updateName = (name) => {
+            this.setState({ name });
+        };
+        this.updateDescription = (description)=>{
+            this.setState({ description })
+        };
+        this.updatePrice = (price)=>{
+            this.setState({ price })
+        };
+        this.updateDuration = (duration)=>{
+            this.setState({ duration })
+        };
+        this.setImage = (imageURI)=>{
+            // for setting image can be used custom picker for IOS
+            // i really don't want to setup it now {`_`}
+            // super easy https://github.com/marcshilling/react-native-image-picker
+            this.setState({image: imageURI}, ()=>{
+                // its for sync state setup for picker
+            });
+        };
+        // too lazy at 1:00 am
+        this.updateOption = (option, value) => {
+            return () => {
+                this.setState({
+                    displayOptions: {
+                        ...this.state.displayOptions,
+                        [option]: value // dark magic
+                    }
+                })
+            };
+        };
+        this.save = throttle(() => {
+            this.props.addService(this.state)
+        }, 500);
+    }
+
+    render() {
+        let { name, image, description, price, duration, displayOptions } = this.state;
+        let { updateName, updateDescription, updateOption, updatePrice, updateDuration, save } = this;
         return (
-            <View style={styles.container}>
-                <Text style={styles.name}>{name}</Text>
-                <View style={styles.imageHolder}>
-                    <Image source={image} resizeMode={'contain'} style={styles.image}/>
-                </View>
-                <View style={styles.imageSeparator}>
-                    <Separator color={'#d65b7f'} height={5} />
-                </View>
-                <View>
-                    <View style={styles.textHolder}>
-                        <Text style={styles.label}>Description</Text>
-                        <Text style={styles.subText}>
-                            {description.length > 0 ? description: 'There is no data'}
-                        </Text>
+            <ScrollView>
+                <View style={styles.container}>
+                    <View style={styles.imageHolder}>
+                        <View style={styles.image}>
+                            <Text style={styles.imageText} onPress={()=>{}}>Pick service image</Text>
+                        </View>
                     </View>
                     <Separator />
-                    {
-                        displayOptions.showPrice?
-                        <View>
-                            <View style={styles.textHolder}>
-                                <Text style={styles.label}>Price</Text>
-                                <Text style={styles.subText}>
-                                    {price}{displayOptions.valt}
-                                </Text>
-                            </View>
-                            <Separator />
-                        </View> : ''
-                    }
-                    {
-                        displayOptions.showDuration?
-                            <View>
-                                <View style={styles.textHolder}>
-                                    <Text style={styles.label}>Duration</Text>
-                                    <Text style={styles.subText}>
-                                        {duration}{displayOptions.durationLabel}
-                                    </Text>
-                                </View>
-                                <Separator />
-                            </View> : ''
-                    }
+                    <View>
+                        <View style={styles.textHolder}>
+                            <Text style={styles.label}>Name</Text>
+                            <TextInput style={styles.input} placeholder={'Set a name'} placeholderTextColor={'white'} onChangeText={updateName}/>
+                        </View>
+                        <Separator />
+                    </View>
+                    <View>
+                        <View style={styles.textHolder}>
+                            <Text style={styles.label}>Description</Text>
+                            <TextInput style={styles.inputTall} multiline={true} numberOfLines={4} placeholder={'Set description'} placeholderTextColor={'white'} onChangeText={updateDescription}/>
+                        </View>
+                        <Separator />
+                    </View>
+                    <View>
+                        <View style={styles.textHolder}>
+                            <Text style={styles.label}>Price</Text>
+                            <TextInput style={styles.input} keyboardType={'numeric'} placeholder={'Set price value'} placeholderTextColor={'white'} onChangeText={updatePrice}/>
+                        </View>
+                        <Separator />
+                    </View>
+                    <View>
+                        <View style={styles.textHolder}>
+                            <Text style={styles.label}>Duration</Text>
+                            <TextInput style={styles.input} keyboardType={'numeric'} placeholder={'Set duration value'} placeholderTextColor={'white'} onChangeText={updateDuration}/>
+                        </View>
+                        <Separator />
+                    </View>
+                    <View>
+                        <View style={styles.textHolder}>
+                            <Text style={styles.label}>Show price</Text>
+                            <Switch style={styles.inputOption} value={displayOptions.showPrice} onValueChange={updateOption('showPrice', !displayOptions.showPrice)}/>
+                        </View>
+                        <Separator />
+                    </View>
+                    <View>
+                        <View style={styles.textHolder}>
+                            <Text style={styles.label}>Show duration</Text>
+                            <Switch style={styles.inputOption} value={displayOptions.showDuration} onValueChange={updateOption('showDuration', !displayOptions.showDuration)}/>
+                        </View>
+                        <Separator />
+                    </View>
+                    <Button
+                        onPress={save}
+                        title="Save"
+                        color="white"
+                        accessibilityLabel="Attention it's will save all to local store"
+                    />
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -73,7 +145,9 @@ const styles = StyleSheet.create({
         marginTop: 5
     },
     textHolder: {
-        padding: 20
+        paddingTop: 20,
+        paddingLeft: 20,
+        paddingRight: 20
     },
     name: {
         color: '#e5e6e9',
@@ -82,14 +156,43 @@ const styles = StyleSheet.create({
 
     },
     imageHolder: {
-        paddingTop: 20,
-        alignItems: 'center'
+        height: 150,
+        margin: 20,
+        backgroundColor: '#2a2d32'
     },
     image: {
-        width: 640,
-        height: 250
+        height: 250,
+        alignSelf: 'center',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    imageText: {
+        color: 'white'
     },
     imageSeparator: {
         paddingTop: 10
+    },
+    input: {
+        height: 40,
+        fontSize: 15,
+        paddingTop: 10,
+        paddingLeft: 0,
+        paddingRight: 0,
+        color: 'white',
+        backgroundColor: '#1c1d21'
+    },
+    inputTall: {
+        height: 100,
+        fontSize: 15,
+        paddingTop: 10,
+        paddingLeft: 0,
+        paddingRight: 0,
+        color: 'white',
+        backgroundColor: '#1c1d21'
+    },
+    inputOption: {
+        height: 40,
+        marginTop: 10
     }
 });

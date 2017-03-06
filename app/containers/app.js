@@ -4,8 +4,10 @@
 
 import React, { Component } from 'react';
 import { connect, Provider } from 'react-redux';
-import { RouterWithRedux, store } from './../store/'
+import { RouterWithRedux, store } from './../store/configureStore'
 import { scenes } from '../scenes/index'
+import { bindActionCreators } from 'redux';
+import * as Actions from './../actions/';
 
 class App extends Component{
     constructor(props){

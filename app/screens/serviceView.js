@@ -10,12 +10,12 @@ class ServiceView extends Component{
         super(props);
     }
     render(){
-        return (<Service {...this.props} />);
+        return (<Service {...this.props.item} />);
     }
 }
 
-const mapStateToProps = (state)=>({
-    ...state.active
+const mapStateToProps = (state) => ({
+        item: state.active
 });
 
 export default connect(mapStateToProps)(ServiceView);
