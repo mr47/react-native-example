@@ -12,6 +12,7 @@ import React, { Component } from 'react';
 import { Router } from 'react-native-router-flux';
 import { connect, Provider } from 'react-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
+import { composeWithDevTools } from 'remote-redux-devtools';
 
 export const RouterWithRedux = connect()(Router);
 
@@ -19,7 +20,9 @@ export const RouterWithRedux = connect()(Router);
 const middleware = [thunk, /* ...your middleware */];
 
 export const store = compose(
-    applyMiddleware(...middleware)
+    composeWithDevTools(
+        applyMiddleware(...middleware)
+    )
 )(createStore)(rootReducer);
 
 export default store;
